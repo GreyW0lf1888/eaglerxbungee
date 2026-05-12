@@ -5,7 +5,7 @@ import { BRANDING, VERSION, NETWORK_VERSION } from "./config.js"
 import { EaglerSkinPacketId, SkinId } from "./eaglerPacketDef.js"
 import { Logger } from "./logger.js"
 
-export type UUID = ReturnType<typeof randomUUID>
+export type UUID = string
 
 export enum State {
     PRE_HANDSHAKE,
@@ -45,7 +45,7 @@ export type Config = {
     bindHost: string,
     maxPlayers: number,
     motd: {
-        iconURL?: string,
+        iconURL?: string | null,
         l1: string,
         l2: string
     },
@@ -55,8 +55,8 @@ export type Config = {
     },
     security: {
         enabled: boolean
-        key: string,
-        cert: string
+        key: string | null,
+        cert: string | null
     }
 }
 
@@ -115,6 +115,8 @@ export class ProxiedPlayer {
     public ws: WebSocket
     public ip: string
     public remotePort: number
+    public serverHost: string
+    public serverPort: number
     public remoteConnection: Client
     public skin: {
         type: "CUSTOM" | "BUILTIN",

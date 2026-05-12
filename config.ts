@@ -1,23 +1,24 @@
 import { Config } from "./types.js";
+import { config as userConfig } from "../config.js";
 
 export const config: Config = {
-    name: "BasedProxy",
-    bindHost: "0.0.0.0",
-    bindPort: 80, // 443 if using TLS
-    maxPlayers: 20,
+    name: userConfig.name ?? "BasedProxy",
+    bindHost: userConfig.bindHost ?? "0.0.0.0",
+    bindPort: parseInt(process.env.BIND_PORT || String(userConfig.bindPort || 80)),
+    maxPlayers: userConfig.maxPlayers ?? 20,
     motd: {
-        iconURL: null,
-        l1: "hi",
-        l2: "lol"
+        iconURL: userConfig.motd?.iconURL ?? null,
+        l1: userConfig.motd?.l1 ?? "hi",
+        l2: userConfig.motd?.l2 ?? "lol"
     },
     server: {
-        host: "locahost",
-        port: 25565
+        host: process.env.SERVER_HOST || userConfig.server?.host || "localhost",
+        port: parseInt(process.env.SERVER_PORT || String(userConfig.server?.port || 25565))
     },
-    security: { // provide path to key & cert if you want to enable encryption/secure websockets
-        enabled: false,
-        key: null,
-        cert: null
+    security: {
+        enabled: process.env.ENABLE_TLS === "true" ? true : (userConfig.security?.enabled ?? false),
+        key: process.env.TLS_KEY || userConfig.security?.key || null,
+        cert: process.env.TLS_CERT || userConfig.security?.cert || null
     }
 }
 

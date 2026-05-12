@@ -269,9 +269,9 @@ export async function doHandshake(client: ProxiedPlayer, initialPacket: Buffer) 
                 client.state = State.POST_HANDSHAKE
 
                 logger.info(`Client [/${client.ip}:${client.remotePort}] authenticated as player ${client.username} (${client.uuid}) and passed handshake. Connecting!`)
-                try { await loginServer(config.server.host, config.server.port, client) }
+                try { await loginServer(client.serverHost, client.serverPort, client) }
                 catch (err) {
-                    logger.error(`Could not connect to remote server at [/${config.server.host}:${config.server.port}]: ${err}`)
+                    logger.error(`Could not connect to remote server at [/${client.serverHost}:${client.serverPort}]: ${err}`)
                     disconnect(client, ChatColor.RED + "Failed to connect to server. Please try again later.", DisconnectReason.CUSTOM)
                     client.state = State.DISCONNECTED
                     client.ws.close()

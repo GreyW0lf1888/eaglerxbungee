@@ -4,7 +4,9 @@
       "esModuleInterop": true,
       "target": "es2017",
       "moduleResolution": "node",
+      "ignoreDeprecations": "6.0",
       "sourceMap": false,
-      "outDir": "build"
+      "outDir": "build",
+      "allowJs": true
     }
   }

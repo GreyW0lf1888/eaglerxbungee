@@ -54,14 +54,25 @@ if (PROXY.config.security.enabled) {
 
 PROXY.wsServer = server
 
-server.addListener('connection', c => {
+server.addListener('connection', (c, req) => {
     connectionLogger.debug(`[CONNECTION] New inbound WebSocket connection from [/${(c as any)._socket.remoteAddress}:${(c as any)._socket.remotePort}]. (${(c as any)._socket.remotePort} -> ${config.bindPort})`)
+    const url = new URL(req.url!, `http://${req.headers.host}`)
+    const serverParam = url.searchParams.get('server')
+    const portParam = url.searchParams.get('port')
     const plr = new ProxiedPlayer()
     plr.ws = c
     plr.ip = (c as any)._socket.remoteAddress
     plr.remotePort = (c as any)._socket.remotePort
     plr.state = State.PRE_HANDSHAKE
     plr.queuedEaglerSkinPackets = []
+    plr.serverHost = serverParam || config.server.host
+    const parsedPort = portParam ? parseInt(portParam) : config.server.port
+    if (isNaN(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+        connectionLogger.warn(`Invalid port parameter: ${portParam}, using default ${config.server.port}`)
+        plr.serverPort = config.server.port
+    } else {
+        plr.serverPort = parsedPort
+    }
     c.on('message', msg => {
         handlePacket(msg as Buffer, plr)
     })
