@@ -21,35 +21,45 @@ global.PROXY = {
     secure: false,
     proxyUUID: genUUID(config.name),
     MOTD: {
-        icon: config.motd.iconURL ? await generateMOTDImage(readFileSync(config.motd.iconURL)) : null,
+        icon: config.motd.iconURL ? await generateMOTDImage(readFileSync(config.motd.iconURL)) : undefined,
         motd: [config.motd.l1, config.motd.l2]
     },
 
-    wsServer: null,
+    wsServer: null as unknown as WebSocketServer,
     players: new Map(),
     logger: logger,
     config: config
 }
 
 let server: WebSocketServer
+let httpServer: http.Server | https.Server
+
+const requestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
+    const url = req.url || "/"
+    if (url === "/" || url === "/index.html") {
+        const html = readFileSync(new URL("../index.html", import.meta.url), "utf8")
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+        return res.end(html)
+    }
+
+    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" })
+    res.end("Not found")
+}
 
 if (PROXY.config.security.enabled) {
     logger.info(`Starting SECURE WebSocket proxy on port ${config.bindPort}...`)
     if (process.env.REPL_SLUG) {
         logger.warn("You appear to be running the proxy on Repl.it with encryption enabled. Please note that Repl.it by default provides encryption, and enabling encryption may or may not prevent you from connecting to the server.")
-    } 
-    server = new WebSocketServer({
-        server: https.createServer({
-            key: readFileSync(config.security.key),
-            cert: readFileSync(config.security.cert)
-        }).listen(config.bindPort, config.bindHost)
-    })
+    }
+    httpServer = https.createServer({
+        key: readFileSync(config.security.key!),
+        cert: readFileSync(config.security.cert!)
+    }, requestHandler).listen(config.bindPort, config.bindHost)
+    server = new WebSocketServer({ server: httpServer })
 } else {
     logger.info(`Starting INSECURE WebSocket proxy on port ${config.bindPort}...`)
-    server = new WebSocketServer({
-        port: config.bindPort,
-        host: config.bindHost
-    })
+    httpServer = http.createServer(requestHandler).listen(config.bindPort, config.bindHost)
+    server = new WebSocketServer({ server: httpServer })
 }
 
 PROXY.wsServer = server

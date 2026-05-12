@@ -1,5 +1,5 @@
 import { Config } from "./types.js";
-import { config as userConfig } from "../config.js";
+const { config: userConfig } = (await import(new URL("../config.js", import.meta.url).href)) as { config: Config };
 
 export const config: Config = {
     name: userConfig.name ?? "BasedProxy",

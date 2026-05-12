@@ -15,9 +15,9 @@ export function unpackChannelMessage(message: Buffer): UnpackedChannelMessage {
     if (message[0] != 0x17 && message[0] != 0x3f)
         throw new Error("Invalid packet ID detected")
     const ret: UnpackedChannelMessage = {
-        channel: null,
-        data: null,
-        type: null
+        channel: "",
+        data: Buffer.alloc(0),
+        type: ChannelMessageType.CLIENT
     }
     const Iid = decodeVarInt(message)
     const channelNameLen = decodeVarInt(message.subarray(Iid[1])), channelName = message.subarray(Iid[1] + channelNameLen[1], Iid[1] + channelNameLen[1] + Number(channelNameLen[0])).toString()
@@ -35,8 +35,8 @@ export function packChannelMessage(channel: string, type: ChannelMessageType, me
 
 export function decodeCFetchSkin(message: Buffer): DecodedCFetchSkin {
     const ret: DecodedCFetchSkin = {
-        id: null,
-        uuid: null
+        id: EaglerSkinPacketId.C_FETCH_SKIN,
+        uuid: ""
     }
     const Iid = decodeVarInt(message), uuid = uuidBuffer.toString(message.subarray(Iid[1]))
     ret.id = Number(Iid[0])
@@ -53,9 +53,9 @@ export function encodeFetchSkin(uuid: string | Buffer): Buffer {
 
 export function decodeSSkinDlBuiltin(message: Buffer): DecodedSSkinFetchBuiltin {
     const ret: DecodedSSkinFetchBuiltin = {
-        id: null,
-        uuid: null,
-        skinId: null
+        id: EaglerSkinPacketId.S_SKIN_DL_BI,
+        uuid: "",
+        skinId: 0
     }
     const Iid = decodeVarInt(message), uuid = uuidBuffer.toString(message.subarray(Iid[1], Iid[1] + 16))
     ret.id = Number(Iid[0])
@@ -75,9 +75,9 @@ export function encodeSSkinDlBuiltin(uuid: string | Buffer, skinId: number): Buf
 
 export function decodeSSkinDl(message: Buffer): DecodedSSkinDl {
     const ret: DecodedSSkinDl = {
-        id: null,
-        uuid: null,
-        skin: null
+        id: EaglerSkinPacketId.S_SKIN_DL,
+        uuid: "",
+        skin: Buffer.alloc(0)
     }
     const Iid = decodeVarInt(message), uuid = uuidBuffer.toString(message.subarray(Iid[1], Iid[1] + 16))
     ret.id = Number(Iid[0])
@@ -100,9 +100,9 @@ export function encodeSSkinDl(uuid: string | Buffer, skin: Buffer, isFetched: bo
 
 export function decodeCSkinReq(message: Buffer): DecodedCSkinReq {
     const ret: DecodedCSkinReq = {
-        id: null,
-        uuid: null,
-        url: null
+        id: EaglerSkinPacketId.C_REQ_SKIN,
+        uuid: "",
+        url: ""
     }
     const Iid = decodeVarInt(message), uuid = uuidBuffer.toString(message.subarray(Iid[1], Iid[1] + 16))
     ret.id = Number(Iid[0])
@@ -168,7 +168,7 @@ export async function fetchSkin(url: string, process?: boolean): Promise<Buffer>
     })
 }
 
-export function getPlayerWithUUID(uuid: string): ProxiedPlayer {
+export function getPlayerWithUUID(uuid: string): ProxiedPlayer | null {
     for (const [username, plr] of PROXY.players) {
         if (plr.uuid == uuid)
             return plr
@@ -185,8 +185,10 @@ export async function processClientReqPacket(decodedMessage: UnpackedChannelMess
             break
         case EaglerSkinPacketId.C_REQ_SKIN:
             const reqSkinPck = decodeCSkinReq(decodedMessage.data)
-            if (getPlayerWithUUID(reqSkinPck.uuid)) {
-                client.ws.send(packChannelMessage(EAGLERCRAFT_SKIN_CHANNEL_NAME, ChannelMessageType.SERVER, encodeSSkinDl(reqSkinPck.uuid, getPlayerWithUUID(reqSkinPck.uuid).skin.customSkin, false)))
+            const skinOwner = getPlayerWithUUID(reqSkinPck.uuid)
+            if (skinOwner) {
+                const skinBuffer = skinOwner.skin.customSkin ?? Buffer.alloc(16384)
+                client.ws.send(packChannelMessage(EAGLERCRAFT_SKIN_CHANNEL_NAME, ChannelMessageType.SERVER, encodeSSkinDl(reqSkinPck.uuid, skinBuffer, false)))
             } else {
                 try {
                     const skin = await fetchSkin(reqSkinPck.url)
@@ -200,9 +202,10 @@ export async function processClientReqPacket(decodedMessage: UnpackedChannelMess
             const plr = getPlayerWithUUID(fetchSkinPlrPck.uuid)
             if (plr) {
                 if (plr.skin.type == 'BUILTIN') {
-                    client.ws.send(packChannelMessage(EAGLERCRAFT_SKIN_CHANNEL_NAME, ChannelMessageType.SERVER, encodeSSkinDlBuiltin(plr.uuid, plr.skin.skinId)))
+                    client.ws.send(packChannelMessage(EAGLERCRAFT_SKIN_CHANNEL_NAME, ChannelMessageType.SERVER, encodeSSkinDlBuiltin(plr.uuid, plr.skin.skinId ?? 0)))
                 } else {
-                    client.ws.send(packChannelMessage(EAGLERCRAFT_SKIN_CHANNEL_NAME, ChannelMessageType.SERVER, encodeSSkinDl(plr.uuid, plr.skin.customSkin, false)))
+                    const skinBuffer = plr.skin.customSkin ?? Buffer.alloc(16384)
+                    client.ws.send(packChannelMessage(EAGLERCRAFT_SKIN_CHANNEL_NAME, ChannelMessageType.SERVER, encodeSSkinDl(plr.uuid, skinBuffer, false)))
                 }
             }
     }

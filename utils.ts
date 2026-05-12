@@ -153,12 +153,12 @@ export async function doHandshake(client: ProxiedPlayer, initialPacket: Buffer) 
         disconnect(client, ChatColor.YELLOW + "The proxy is full!", DisconnectReason.CUSTOM)
         return
     }
-    const identifyC = {
-        id: null,
-        brandingLen: null,
-        branding: null,
-        verLen: null,
-        ver: null
+    const identifyC: { id: number, brandingLen: number, branding: string, verLen: number, ver: string } = {
+        id: 0,
+        brandingLen: 0,
+        branding: "",
+        verLen: 0,
+        ver: ""
     }
     if (true) {
         // save namespace by nesting func declarations in a if true statement
@@ -180,13 +180,13 @@ export async function doHandshake(client: ProxiedPlayer, initialPacket: Buffer) 
     }
     client.clientBrand = identifyC.branding
     const login = await awaitPacket(client.ws)
-    const loginP = {
-        id: null,
-        usernameLen: null,
-        username: null,
-        randomStrLen: null,
-        randomStr: null,
-        nullByte: null
+    const loginP: { id: number, usernameLen: number, username: string, randomStrLen: number, randomStr: string, nullByte: number } = {
+        id: 0,
+        usernameLen: 0,
+        username: "",
+        randomStrLen: 0,
+        randomStr: "",
+        nullByte: 0
     }
     if (login[0] === EaglerPacketId.LOGIN) {
         const Iid = decodeVarInt(login)
@@ -201,8 +201,8 @@ export async function doHandshake(client: ProxiedPlayer, initialPacket: Buffer) 
         client.username = loginP.username
         client.uuid = genUUID(client.username)
         try { validateUsername(client.username) }
-        catch (err) {
-            disconnect(client, ChatColor.RED + err.message, DisconnectReason.CUSTOM)
+        catch (err: unknown) {
+            disconnect(client, ChatColor.RED + String(err), DisconnectReason.CUSTOM)
             return
         }
         if (PROXY.players.has(client.username)) {
@@ -225,14 +225,14 @@ export async function doHandshake(client: ProxiedPlayer, initialPacket: Buffer) 
                     return
                 }
                 if (true) {
-                    const skinP = {
-                        id: null,
-                        skinVerLen: null,
-                        skinVer: null, // skin_v1
-                        type: null, // CUSTOM or BUILTIN
-                        skinId: null,
-                        skinDimens: null,
-                        skin: null
+                    const skinP: { id: number, skinVerLen: number, skinVer: string, type: "CUSTOM" | "BUILTIN", skinId?: number, skinDimens?: number, skin?: Buffer } = {
+                        id: 0,
+                        skinVerLen: 0,
+                        skinVer: "",
+                        type: "CUSTOM",
+                        skinId: undefined,
+                        skinDimens: undefined,
+                        skin: undefined
                     }
                     const Iid = decodeVarInt(skin)
                     skinP.id = Number(Iid[0])
@@ -270,8 +270,8 @@ export async function doHandshake(client: ProxiedPlayer, initialPacket: Buffer) 
 
                 logger.info(`Client [/${client.ip}:${client.remotePort}] authenticated as player ${client.username} (${client.uuid}) and passed handshake. Connecting!`)
                 try { await loginServer(client.serverHost, client.serverPort, client) }
-                catch (err) {
-                    logger.error(`Could not connect to remote server at [/${client.serverHost}:${client.serverPort}]: ${err}`)
+                catch (err: unknown) {
+                    logger.error(`Could not connect to remote server at [/${client.serverHost}:${client.serverPort}]: ${String(err)}`)
                     disconnect(client, ChatColor.RED + "Failed to connect to server. Please try again later.", DisconnectReason.CUSTOM)
                     client.state = State.DISCONNECTED
                     client.ws.close()
@@ -354,7 +354,7 @@ export function handleMotd(player: Partial<ProxiedPlayer>) {
         }
     }
 
-    player.ws.send(JSON.stringify({
+    player.ws?.send(JSON.stringify({
         brand: PROXY.brand,
         cracked: true,
         data: {
@@ -373,7 +373,7 @@ export function handleMotd(player: Partial<ProxiedPlayer>) {
         vers: PROXY.MOTDVersion
     } as MotdJSONRes))
     if (PROXY.MOTD.icon) {
-        player.ws.send(PROXY.MOTD.icon)
+        player.ws?.send(PROXY.MOTD.icon)
     }
-    player.ws.close()
+    player.ws?.close()
 }

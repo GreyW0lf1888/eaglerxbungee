@@ -108,22 +108,22 @@ export type Chat = {
 }
 
 export class ProxiedPlayer {
-    public username: string
-    public uuid: string
-    public clientBrand: string
-    public state: State
-    public ws: WebSocket
-    public ip: string
-    public remotePort: number
-    public serverHost: string
-    public serverPort: number
-    public remoteConnection: Client
-    public skin: {
+    public username!: string
+    public uuid!: string
+    public clientBrand!: string
+    public state!: State
+    public ws!: WebSocket
+    public ip!: string
+    public remotePort!: number
+    public serverHost!: string
+    public serverPort!: number
+    public remoteConnection!: Client
+    public skin!: {
         type: "CUSTOM" | "BUILTIN",
         skinId?: number,
         customSkin?: Buffer
     }
-    public queuedEaglerSkinPackets: UnpackedChannelMessage[]
+    public queuedEaglerSkinPackets!: UnpackedChannelMessage[]
 }
 
 export enum ChannelMessageType {
@@ -138,24 +138,24 @@ export type UnpackedChannelMessage = {
 }
 
 export type DecodedCFetchSkin = {
-    id: EaglerSkinPacketId.C_FETCH_SKIN,
+    id: EaglerSkinPacketId,
     uuid: UUID
 }
 
 export type DecodedSSkinFetchBuiltin = {
-    id: EaglerSkinPacketId.S_SKIN_DL_BI,
+    id: EaglerSkinPacketId,
     uuid: UUID,
     skinId: SkinId
 }
 
 export type DecodedSSkinDl = {
-    id: EaglerSkinPacketId.S_SKIN_DL,
+    id: EaglerSkinPacketId,
     uuid: UUID,
     skin: Buffer
 }
 
 export type DecodedCSkinReq = {
-    id: EaglerSkinPacketId.C_REQ_SKIN,
+    id: EaglerSkinPacketId,
     uuid: UUID,
     url: string
 }
