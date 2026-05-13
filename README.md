@@ -12,11 +12,12 @@ A WebSocket proxy that allows EaglercraftX 1.8 clients to connect to an offline 
 * TypeScript installed (`npm i -g typescript`, may require `sudo` or administrator permissions)
 * An **OFFLINE** 1.8.9-compatible Minecraft server or proxy
 ### Setup Guide
-#### If Repl.it is acceptable, fork the [demo](https://replit.com/@WorldEditAxe/eaglerx-server) and connect to it. All proxy files will be under the `proxy` folder.
-1. Download and extract this repository to a folder on your computer.
-2. Open a terminal and go to the folder of the repository. Run `npm i`, followed by `tsc`.
-3. Run the server (`npm run start`).
-4. Connect to your server. For the server address, use the following format: `ws://<IP>:<port>`. If you are using encryption, replace `ws://` with `wss://`.
+#### Normally, use Github Codespaces, but repl.it is also acceptable.
+1. Get a github account
+2. Fork this repo and open codespaces for it
+3. Open a terminal and run the codespace and forward it to port 8080
+4. Openn the link of the forwarded port, and enter your server IP and port, then press the forward to eaglercraft button.
+5. Connect to your server.
 
 ### Config file
-Edit `config.js` to configure the proxy, including the `server.host` and `server.port` values for the remote Minecraft server.
+*Irrelevant*
