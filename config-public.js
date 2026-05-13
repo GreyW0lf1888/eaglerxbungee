@@ -1,10 +1,10 @@
 export const config = {
     // The name of the proxy. (used for MOTD and logging)
-    name: "BasedProxy",
+    name: "BasedProxy-Public",
     // The address to bind the WebSocket server to.
     bindHost: "0.0.0.0",
     // The port to bind the WebSocket proxy to.
-    bindPort: 8080,
+    bindPort: 2615,
     // The maximum number of connected players allowed.
     maxPlayers: 20,
     motd: {

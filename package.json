@@ -1,7 +1,10 @@
 {
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node build/index.js"
+    "start": "npm run build && node build/index.js",
+    "start-private": "npm run build && node build/index.js",
+    "start-public": "npm run build && node build/index-public.js",
+    "start-both": "npm run build && (node build/index.js &) && node build/index-public.js"
   },
   "dependencies": {
     "@thi.ng/leb128": "^3.0.1",
