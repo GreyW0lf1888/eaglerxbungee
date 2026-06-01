@@ -18,7 +18,8 @@ export function handlePacket(packet: Buffer, client: ProxiedPlayer) {
                 })
         } else if (!(client as any)._handled && packet[0] == 0x17) {
             const decoded = unpackChannelMessage(packet)
-            if (decoded.channel == EAGLERCRAFT_SKIN_CHANNEL_NAME) {
+            // Only queue skin packets if skins are enabled
+            if (decoded.channel == EAGLERCRAFT_SKIN_CHANNEL_NAME && PROXY.config.performance.allowSkins) {
                 client.queuedEaglerSkinPackets.push(decoded)
             }
         }
@@ -27,10 +28,13 @@ export function handlePacket(packet: Buffer, client: ProxiedPlayer) {
             logger.warn(`Received packet from player ${client.username} that is marked as post handshake, but is disconnected from the game server? Disconnecting due to illegal state.`)
             client.ws.close()
         } else {
-            if (packet[0] == 0x17) {
+            // Skip skin packet processing if skins are disabled
+            if (packet[0] == 0x17 && PROXY.config.performance.allowSkins) {
                 const decoded = unpackChannelMessage(packet)
                 if (decoded.channel == EAGLERCRAFT_SKIN_CHANNEL_NAME) {
                     processClientReqPacket(decoded, client)
+                } else {
+                    client.remoteConnection.writeRaw(packet)
                 }
             } else {
                 client.remoteConnection.writeRaw(packet)

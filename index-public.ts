@@ -32,6 +32,11 @@ const config: Config = {
         enabled: process.env.ENABLE_TLS === "true" ? true : (rawConfig.security?.enabled ?? false),
         key: process.env.TLS_KEY || rawConfig.security?.key || null,
         cert: process.env.TLS_CERT || rawConfig.security?.cert || null
+    },
+    performance: {
+        allowSkins: process.env.ALLOW_SKINS !== "false" ? (rawConfig.performance?.allowSkins ?? true) : false,
+        cacheImages: process.env.CACHE_IMAGES !== "false" ? (rawConfig.performance?.cacheImages ?? true) : false,
+        tcpNoDelay: process.env.TCP_NO_DELAY !== "false" ? (rawConfig.performance?.tcpNoDelay ?? true) : false
     }
 }
 

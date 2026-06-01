@@ -57,6 +57,11 @@ export type Config = {
         enabled: boolean
         key: string | null,
         cert: string | null
+    },
+    performance: {
+        allowSkins?: boolean,
+        cacheImages?: boolean,
+        tcpNoDelay?: boolean
     }
 }
 

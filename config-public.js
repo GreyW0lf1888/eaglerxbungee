@@ -28,5 +28,15 @@ export const config = {
         key: null,
         // Path to your TLS certificate file if using secure mode.
         cert: null
+    },
+    performance: {
+        // Allow Eaglercraft skin processing (set to false to reduce CPU usage)
+        // Disabling this improves performance with many concurrent players
+        allowSkins: true,
+        // Cache downloaded skin images (set to false to reduce memory usage)
+        cacheImages: true,
+        // Enable TCP_NODELAY to disable Nagle's algorithm
+        // Provides instant packet delivery, reducing rubberbanding (RECOMMENDED: true)
+        tcpNoDelay: true
     }
 };

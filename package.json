@@ -1,12 +1,13 @@
 {
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node build/index.js",
-    "start-private": "npm run build && node build/index.js",
-    "start-public": "npm run build && node build/index-public.js",
-    "start-both": "npm run build && (node build/index.js &) && node build/index-public.js",
-    "dev": "npm run build && node build/index.js",
-    "dev-public": "npm run build && node build/index-public.js",
+    "start": "npm run build && node --expose-gc --max-old-space-size=2048 build/index.js",
+    "start-private": "npm run build && node --expose-gc --max-old-space-size=2048 build/index.js",
+    "start-public": "npm run build && node --expose-gc --max-old-space-size=2048 build/index-public.js",
+    "start-both": "npm run build && (node --expose-gc --max-old-space-size=2048 build/index.js &) && node --expose-gc --max-old-space-size=2048 build/index-public.js",
+    "dev": "npm run build && node --expose-gc --max-old-space-size=2048 build/index.js",
+    "dev-public": "npm run build && node --expose-gc --max-old-space-size=2048 build/index-public.js",
+    "start-optimized": "npm run build && node --expose-gc --max-old-space-size=4096 --max-http-header-size=16384 build/index.js",
     "netlify-build": "npm run build",
     "netlify-start": "npm run start"
   },

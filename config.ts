@@ -19,6 +19,11 @@ export const config: Config = {
         enabled: process.env.ENABLE_TLS === "true" ? true : (userConfig.security?.enabled ?? false),
         key: process.env.TLS_KEY || userConfig.security?.key || null,
         cert: process.env.TLS_CERT || userConfig.security?.cert || null
+    },
+    performance: {
+        allowSkins: process.env.ALLOW_SKINS !== "false" ? (userConfig.performance?.allowSkins ?? true) : false,
+        cacheImages: process.env.CACHE_IMAGES !== "false" ? (userConfig.performance?.cacheImages ?? true) : false,
+        tcpNoDelay: process.env.TCP_NO_DELAY !== "false" ? (userConfig.performance?.tcpNoDelay ?? true) : false
     }
 }
 

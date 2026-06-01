@@ -120,6 +120,11 @@ export function loginServer(ip: string, port: number, client: ProxiedPlayer) {
             rej(err)
         })
         mcClient.on('connect', () => {
+            // Enable TCP_NODELAY to disable Nagle's algorithm for instant packet forwarding
+            if (config.performance.tcpNoDelay && (mcClient as any).socket) {
+                (mcClient as any).socket.setNoDelay(true)
+                logger.debug(`TCP_NODELAY enabled for player ${client.username}`)
+            }
             client.remoteConnection = mcClient
             mcClient.on('end', () => {
                 client.ws.close()
