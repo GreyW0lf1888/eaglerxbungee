@@ -1,0 +1,115 @@
+# ============================================================
+# Netlify Configuration for EaglerXProxy
+# ============================================================
+#
+# ⚠️ IMPORTANT: Netlify Functions are serverless and cannot run
+#    long-lived WebSocket connections. This configuration is for
+#    reference only.
+#
+# FOR PRODUCTION DEPLOYMENT: Use Docker on Railway, Render, or
+# DigitalOcean instead. See DEPLOYMENT.md for full instructions.
+#
+# ============================================================
+
+[build]
+# Build command compiles TypeScript to JavaScript
+command = "npm run build"
+
+# Functions directory (if using serverless functions)
+# Note: Netlify Functions have 26-second timeout - unsuitable for WebSocket
+functions = "functions"
+
+# Publish directory contains static files
+publish = "build"
+
+[functions]
+# Node.js runtime configuration
+node_bundler = "esbuild"
+
+# Included files for deployment
+included_files = ["build/**", "node_modules/**"]
+
+# ⚠️ WARNING: Netlify Function timeouts are 26 seconds by default.
+# WebSocket connections cannot work with this timeout.
+
+# ============================================================
+# Environment Variables
+# ============================================================
+# These will be ignored in Netlify because WebSocket is not supported.
+# For actual deployment, use Railway, Render, or DigitalOcean.
+
+[env.production.environment]
+ENABLE_PERSISTENT_IP = "true"
+PROXY_PERSISTENCE_DIR = "/tmp/eagler-proxy"
+
+[env.development.environment]
+ENABLE_PERSISTENT_IP = "true"
+PROXY_PERSISTENCE_DIR = "./.proxy-data"
+
+# ============================================================
+# RECOMMENDED ALTERNATIVE: Docker on Other Platforms
+# ============================================================
+#
+# Instead of deploying to Netlify Functions, deploy the Docker
+# image to one of these platforms for full WebSocket support:
+#
+# 1. Railway (Recommended - Easiest setup)
+#    - Automatic Docker support
+#    - Persistent volumes available
+#    - Free tier with generous limits
+#    - Go to: https://railway.app
+#
+# 2. Render
+#    - Full Docker container support
+#    - Persistent disks
+#    - Good performance
+#    - Go to: https://render.com
+#
+# 3. DigitalOcean App Platform
+#    - Enterprise-grade infrastructure
+#    - Global regions
+#    - Best for large deployments
+#    - Go to: https://www.digitalocean.com/products/app-platform/
+#
+# 4. Traditional VPS (DigitalOcean, Linode, Hetzner, etc.)
+#    - Maximum control
+#    - Use Docker Compose or PM2
+#    - Best for advanced users
+#
+# ============================================================
+
+# These redirects would work if WebSocket was supported
+# [[redirects]]
+# from = "/*"
+# to = "/index.html"
+# status = 200
+
+# Headers for WebSocket support (informational only)
+[[headers]]
+for = "/*"
+[headers.values]
+# These headers enable WebSocket connections
+# Connection = "Upgrade"
+# Upgrade = "websocket"
+# Pragma = "no-cache"
+# Cache-Control = "no-cache, no-store, must-revalidate"
+
+# ============================================================
+# DEPLOYMENT STATUS
+# ============================================================
+#
+# ✅ Static Content: Can be served by Netlify
+# ✅ API Endpoints: Can use Netlify Functions (26s timeout)
+# ❌ WebSocket Proxy: NOT supported by Netlify
+#
+# SOLUTION: Deploy the WebSocket proxy separately on Railway,
+# Render, or DigitalOcean. Then point your static frontend
+# (hosted on Netlify) to the proxy running on another platform.
+#
+# Example architecture:
+#   - Static frontend: https://eagler.netlify.app/
+#   - WebSocket proxy: wss://eagler-proxy.railway.app/server
+#
+# ============================================================
+Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"

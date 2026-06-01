@@ -4,7 +4,11 @@
     "start": "npm run build && node build/index.js",
     "start-private": "npm run build && node build/index.js",
     "start-public": "npm run build && node build/index-public.js",
-    "start-both": "npm run build && (node build/index.js &) && node build/index-public.js"
+    "start-both": "npm run build && (node build/index.js &) && node build/index-public.js",
+    "dev": "npm run build && node build/index.js",
+    "dev-public": "npm run build && node build/index-public.js",
+    "netlify-build": "npm run build",
+    "netlify-start": "npm run start"
   },
   "dependencies": {
     "@thi.ng/leb128": "^3.0.1",

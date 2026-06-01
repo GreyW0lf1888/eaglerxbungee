@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  eagler-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eagler-proxy-dev
+    ports:
+      - "8080:8080"
+    environment:
+      # Server Configuration
+      SERVER_HOST: localhost
+      SERVER_PORT: "25565"
+      
+      # Proxy Configuration
+      BIND_HOST: "0.0.0.0"
+      BIND_PORT: "8080"
+      
+      # Persistence Configuration
+      ENABLE_PERSISTENT_IP: "true"
+      PROXY_PERSISTENCE_DIR: "/app/.proxy-data"
+    
+    volumes:
+      # Persistent storage for proxy UUID and state
+      - proxy-data:/app/.proxy-data
+    
+    restart: unless-stopped
+    
+    # Health check to ensure the proxy is running
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  proxy-data:
+    driver: local

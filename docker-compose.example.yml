@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Private proxy instance
+  eagler-proxy-private:
+    build: .
+    container_name: eagler-proxy-private
+    ports:
+      - "8080:8080"
+    environment:
+      BIND_PORT: 8080
+      BIND_HOST: "0.0.0.0"
+      SERVER_HOST: "${SERVER_HOST:-localhost}"
+      SERVER_PORT: "${SERVER_PORT:-25565}"
+      ENABLE_PERSISTENT_IP: "true"
+      PROXY_PERSISTENCE_DIR: /app/.proxy-data
+      LOG_LEVEL: info
+    volumes:
+      - proxy-data-private:/app/.proxy-data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080', (r) => r.statusCode === 404 ? process.exit(0) : process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Public proxy instance (optional)
+  eagler-proxy-public:
+    build: .
+    container_name: eagler-proxy-public
+    ports:
+      - "2615:2615"
+    environment:
+      BIND_PORT: 2615
+      BIND_HOST: "0.0.0.0"
+      SERVER_HOST: "${SERVER_HOST:-localhost}"
+      SERVER_PORT: "${SERVER_PORT:-25565}"
+      ENABLE_PERSISTENT_IP: "true"
+      PROXY_PERSISTENCE_DIR: /app/.proxy-data-public
+      LOG_LEVEL: info
+    volumes:
+      - proxy-data-public:/app/.proxy-data-public
+    restart: unless-stopped
+    depends_on:
+      - eagler-proxy-private
+
+  # Optional: Nginx reverse proxy for load balancing
+  nginx:
+    image: nginx:alpine
+    container_name: eagler-proxy-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    restart: unless-stopped
+    depends_on:
+      - eagler-proxy-private
+      - eagler-proxy-public
+
+volumes:
+  proxy-data-private:
+    driver: local
+  proxy-data-public:
+    driver: local
+
+networks:
+  default:
+    name: eagler-proxy-network

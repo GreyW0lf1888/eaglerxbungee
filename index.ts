@@ -8,9 +8,15 @@ import { Logger } from "./logger.js";
 import { disconnect, generateMOTDImage } from "./utils.js";
 import { ChatColor, ProxiedPlayer, State } from "./types.js";
 import { genUUID } from "./utils.js";
+import { PersistenceManager } from "./persistence.js";
 
 const logger = new Logger("EagXProxy")
 const connectionLogger = new Logger("ConnectionHandler")
+
+// Initialize persistence manager for consistent proxy UUID
+const persistenceDir = process.env.PROXY_PERSISTENCE_DIR || "./.proxy-data";
+const persistenceManager = new PersistenceManager(persistenceDir, true);
+const persistentProxyUUID = persistenceManager.getOrCreateProxyUUID();
 
 global.PROXY = {
     brand: BRANDING,
@@ -19,7 +25,7 @@ global.PROXY = {
 
     serverName: config.name,
     secure: false,
-    proxyUUID: genUUID(config.name),
+    proxyUUID: persistentProxyUUID,
     MOTD: {
         icon: config.motd.iconURL ? await generateMOTDImage(readFileSync(config.motd.iconURL)) : undefined,
         motd: [config.motd.l1, config.motd.l2]
